@@ -1,0 +1,1 @@
+exports.ACCESS_KEY_LENGTH = 6;

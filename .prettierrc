@@ -1,0 +1,12 @@
+{
+  "singleQuote": true,
+  "tabWidth": 2,
+  "trailingComma": "none",
+  "multiline": "auto",
+  "bracketSameLine": false,
+  "maxLineLength": 400,
+  "semi": true,
+  "arrowParens": "avoid",
+  "printWidth": 94,
+  "editor.formatOnSave": true
+}

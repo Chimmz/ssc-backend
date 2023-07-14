@@ -1,0 +1,16 @@
+
+/dist
+
+# dependencies
+node_modules/
+.vscode
+# misc
+.env
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+yarn.lock
+
+# others
+.docs
