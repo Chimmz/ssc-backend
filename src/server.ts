@@ -1,11 +1,11 @@
 const dotenv = require('dotenv');
 dotenv.config();
 
-import { createServer, Server } from 'http';
+import { createServer } from 'http';
 import mongoConnect from './db/mongoose';
 import app from './app';
 
-const server: Server = createServer(app);
+const server = createServer(app);
 
 mongoConnect()
   .then(() => {

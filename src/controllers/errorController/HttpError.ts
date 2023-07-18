@@ -1,18 +1,19 @@
-interface HttpErrorObj extends Omit<Error, 'stack' | 'name'> {
-  statusCode: number;
-  isBadRequest: boolean;
+interface FieldError {
+  field: string;
+  msg: string;
 }
 
-// let a: HttpErrorObj = { }
-
-export default class HttpError implements HttpErrorObj {
+export default class HttpError extends Error {
   readonly message: string;
   readonly statusCode: number;
   readonly isBadRequest: boolean;
+  readonly errors: FieldError[] | undefined;
 
-  constructor(msg: string, statusCode: number) {
+  constructor(statusCode: number, msg: string, errors?: FieldError[]) {
+    super(msg);
     this.message = msg;
     this.statusCode = statusCode;
+    this.errors = errors;
     this.isBadRequest = `${statusCode}`.startsWith('4');
   }
 }

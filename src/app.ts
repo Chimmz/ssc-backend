@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import rateLimit from 'express-rate-limit';
 import globalErrorHandler from './controllers/errorController/globalErrorHandler';
+import userRouter from './routes/userRouter';
 
 const app = express();
 
@@ -9,7 +10,7 @@ app.use(express.static('public'));
 app.use(cors());
 app.use(express.json());
 
-// app.use('/api/v1/accounts', require('./routes/accountRoutes'));
+app.use('/api/v1/users', userRouter);
 
 // Rate limit
 const limiter = rateLimit({
