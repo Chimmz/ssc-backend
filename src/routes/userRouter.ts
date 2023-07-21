@@ -1,11 +1,18 @@
 import { Router } from 'express';
-import { login, signup, verifyEmail } from '../controllers/userController/auth';
+import * as authController from '../controllers/userController/auth';
+import subscribeNewsletter from '../controllers/userController/subscribeNewsletter';
 
 const router = Router();
 
-router.route('/signup').post(signup);
-router.route('/login').post(login);
+router.route('/auth/signup').post(authController.signup);
+router.route('/auth/login').post(authController.login);
+router.get('/auth/email-verify/:vid', authController.verifyEmail);
+router.post('/auth/send-email-verification', authController.resendVerificationEmail);
 
-router.get('/email-verify/:vid', verifyEmail);
+router
+  .route('/auth/google-signin')
+  .post(authController.googleVerify, authController.googleSignIn);
+
+router.route('/newsletter').post(subscribeNewsletter);
 
 export default router;

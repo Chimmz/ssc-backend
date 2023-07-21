@@ -20,13 +20,13 @@ class EmailService {
         <div>
           <p>Dear ${user.firstName},</p>
           <p>Thank you for joining us at Seoul Startups Club!</p>
-          <p style="margin-bottom: 20px">To complete the registration process, please verify your account by clicking the link below.</p>
-          <br/>
+          <p style="margin-bottom: 10px">To complete the registration process, please verify your account by clicking the link below.</p>
           <a href='${link}' style="background: #7600ff; color: #fff; padding: 7px 15px; border-radius: 999px; text-align: center;">Verify My Account</a>
         </div>
       `
     };
     const feedback = (await this.#transporter.sendMail(options)) as { accepted: string[] };
+    console.log(feedback);
     return { successful: !!feedback.accepted.length };
   }
 

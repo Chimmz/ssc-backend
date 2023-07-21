@@ -1,5 +1,6 @@
-import { Model, Document, HydratedDocument } from 'mongoose';
+import { Model, Document, HydratedDocument, Schema } from 'mongoose';
 
+////////// USER SCHEMA ///////////////////////////////////////////
 export interface UserDocument extends Document {
   firstName: string;
   lastName: string;
@@ -19,20 +20,42 @@ export interface UserModel extends Model<UserDocument, {}, UserMethods> {
   sendVerificationEmail(): Promise<void>;
 }
 
-////////// Email Verification Schema /////////////
-
+////////// EMAIL VERIFICATION SCHEMA /////////////////////////////////
 export interface EmailVerificationDocument extends Document {
   email: string;
   createdAt: Date;
 }
-
 export interface EmailVerificationMethods {
   delete(): void;
   isExpired(): boolean;
 }
-
 // Statics
 export interface EmailVerificationModel
   extends Model<EmailVerificationDocument, {}, EmailVerificationMethods> {
-  // isUsedOrInvalid(): Promise<boolean>;
+  findByEmail(
+    email: string
+  ): Promise<HydratedDocument<EmailVerificationDocument, EmailVerificationMethods>>;
+
+  removeVerificationsWithEmail(
+    email: string
+  ): Promise<HydratedDocument<EmailVerificationDocument, EmailVerificationMethods>>;
 }
+
+//////// EMAIL SUBSCRIBE SCHEMA ///////////////////////////////////
+export interface EmailSubscriberDocument extends Document {
+  email: string;
+  createdAt: Date;
+}
+
+////////////// NEWS SCHEMA ////////////////////////////////////
+export interface NewsDocument extends Document {
+  headline: string;
+  story: string;
+  postedBy: Schema.Types.ObjectId;
+  isApprovedByAdmin: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+export interface NewsMethods {}
+// Statics
+export interface NewsModel extends Model<NewsDocument, {}, NewsMethods> {}
