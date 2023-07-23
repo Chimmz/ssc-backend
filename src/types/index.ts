@@ -1,4 +1,5 @@
 import { Model, Document, HydratedDocument, Schema } from 'mongoose';
+import { StartupIndustries, StartupStages } from '../utils/constants';
 
 ////////// USER SCHEMA ///////////////////////////////////////////
 export interface UserDocument extends Document {
@@ -59,3 +60,30 @@ export interface NewsDocument extends Document {
 export interface NewsMethods {}
 // Statics
 export interface NewsModel extends Model<NewsDocument, {}, NewsMethods> {}
+
+/////////////////// STARTUP MODEL /////////////////////////////////
+export type StartupIndustry =
+  | StartupIndustries.HEALTHCARE
+  | StartupIndustries.BLOCK_CHAIN
+  | StartupIndustries.E_COMMERCE
+  | StartupIndustries.FINANCIAL
+  | StartupIndustries.GAMING;
+
+export type StartupStage =
+  | StartupStages.SEED_STAGE
+  | StartupStages.GROWTH_STAGE
+  | StartupStages.IDEA_AND_CONCEPTUALIZATION
+  | StartupStages.EARLY_TRACTION
+  | StartupStages.PROOF_OF_CONCEPT
+  | StartupStages.EXPANSION_AND_MATURITY;
+
+export interface StartupDocument extends Document {
+  createdAt: Date;
+  name: string;
+  imgUrl: string;
+  industry: StartupIndustry;
+  stage: StartupStage;
+}
+export interface StartupMethods {}
+// Statics
+export interface StartupModel extends Model<StartupDocument, {}, StartupMethods> {}

@@ -1,12 +1,9 @@
 import { Router } from 'express';
-import postNews from '../controllers/newsController/postNews';
-import getAllNews from '../controllers/newsController/getAllNews';
-import searchNews from '../controllers/newsController/searchNews';
+import * as newsController from '../controllers/newsController';
 
 const router = Router();
 
-router.route('/').post(postNews).get(getAllNews);
-
-router.get('/search', searchNews);
+router.route('/').post(newsController.postNews).get(newsController.getNews);
+router.route('/:newsId').get(newsController.getNewsById);
 
 export default router;
