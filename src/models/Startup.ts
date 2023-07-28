@@ -4,8 +4,8 @@ import { StartupIndustries, StartupStages } from '../utils/constants';
 
 const startupSchema = new Schema<StartupDocument, StartupModel, StartupMethods>(
   {
-    name: { type: String },
-    imgUrl: { type: String },
+    name: { type: String, index: 'text' },
+    logo: { type: String },
     industry: {
       enum: [
         StartupIndustries.HEALTHCARE,
@@ -24,11 +24,13 @@ const startupSchema = new Schema<StartupDocument, StartupModel, StartupMethods>(
         StartupStages.PROOF_OF_CONCEPT,
         StartupStages.EXPANSION_AND_MATURITY
       ]
-    }
+    },
+    description: { type: String, maxlength: 500, index: 'text' }
   },
   { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
 
+startupSchema.index({ name: 'text', description: 'text' });
 const Startup = mongoose.model<StartupDocument, StartupModel>('Startup', startupSchema);
 
 export default Startup;

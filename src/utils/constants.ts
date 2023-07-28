@@ -5,7 +5,8 @@ export const enum StartupIndustries {
   BLOCK_CHAIN = 'Block Chain',
   FINANCIAL = 'Financial',
   GAMING = 'Gaming',
-  E_COMMERCE = 'E-commerce'
+  E_COMMERCE = 'E-commerce',
+  TECHNOLOGY = 'Technology'
 }
 
 export const enum StartupStages {

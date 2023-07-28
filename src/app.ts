@@ -5,6 +5,7 @@ import globalErrorHandler from './controllers/errorController/globalErrorHandler
 import userRouter from './routes/userRouter';
 import { googleCallback } from './controllers/userController/auth';
 import newsRouter from './routes/newsRouter';
+import startupRouter from './routes/startupRouter';
 
 const app = express();
 
@@ -15,6 +16,7 @@ app.use(express.json());
 app.use('/api/v1/users', userRouter);
 app.post('/api/v1/auth/callback/google', googleCallback);
 app.use('/api/v1/news', newsRouter);
+app.use('/api/v1/startups', startupRouter);
 
 // Rate limit
 const limiter = rateLimit({

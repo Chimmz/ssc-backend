@@ -7,6 +7,8 @@ import EmailVerification from '../../models/EmailVerification';
 import { isValidObjectId } from 'mongoose';
 import jwt from 'jsonwebtoken';
 import axios from 'axios';
+import { v4 as uuidv4 } from 'uuid';
+import { UserDocument } from '../../types';
 
 const signToken = (userId: string) => {
   const token = jwt.sign({ uid: userId }, process.env.JWT_SECRET!, { expiresIn: '30d' });
@@ -14,7 +16,7 @@ const signToken = (userId: string) => {
 };
 
 // SIGNUP
-export const signup: RequestHandler = catchAsync(async (req, res, next) => {
+export const signup = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;
 
   if (await User.someUserExistsWithEmail(req.body.email))
@@ -24,21 +26,27 @@ export const signup: RequestHandler = catchAsync(async (req, res, next) => {
       ])
     );
 
-  const firstName = req.body.firstName || req.body.fullname?.split(' ')[0];
-  const lastName = req.body.lastName || req.body.fullname?.split(' ')[1];
-  const newUser = await User.create({ email, password, firstName, lastName });
+  const newUser = await User.create({
+    firstName: req.body.firstName || req.body.fullname?.split(' ')[0],
+    lastName: req.body.lastName || req.body.fullname?.split(' ')[1],
+    email,
+    password
+  });
+
   const newVerif = await EmailVerification.create({ email });
 
   const { successful } = await emailService.sendVerificationEmail(
     newUser,
-    `${process.env.SSC_FRONTEND_URL!}/auth/email-verify/${newVerif._id}`
+    `${process.env.SSC_FRONTEND_URL!}/auth/email-verify/${newVerif._id}?email=${
+      newUser.email
+    }`
   );
   res.status(201).json({ status: 'USER_CREATED', user: await User.findById(newUser._id) });
 });
 
 // LOGIN
-export const login: RequestHandler = catchAsync(async (req, res, next) => {
-  const user = await User.findOne({ email: req.body.email }).select('password');
+export const login = catchAsync(async (req, res, next) => {
+  const user = await User.findOne({ email: req.body.email.trim() }).select('password');
   if (!user)
     return next(
       new HttpError(400, 'Wrong email or password entered', [
@@ -52,14 +60,17 @@ export const login: RequestHandler = catchAsync(async (req, res, next) => {
       ])
     );
 
+  if (user.isEmailVerified)
+    await EmailVerification.findOneAndDelete({ email: req.body.email.trim() });
+
   res.status(200).json({
     status: 'LOGIN_SUCCESS',
-    user: await User.findOne({ email: req.body.email }).select('-password'),
+    user: await User.findOne({ email: req.body.email.trim() }).select('-password'),
     accessToken: signToken(user._id)
   });
 });
 
-export const resendVerificationEmail: RequestHandler = catchAsync(async (req, res, next) => {
+export const resendVerificationEmail = catchAsync(async (req, res, next) => {
   if (!req.query.email) return next(new HttpError(400, 'No email specified'));
 
   const user = await User.findByEmail(req.query.email as string);
@@ -69,21 +80,29 @@ export const resendVerificationEmail: RequestHandler = catchAsync(async (req, re
   const newVerif = await EmailVerification.create({ email: user.email });
   const { successful } = await emailService.sendVerificationEmail(
     user,
-    `${process.env.SSC_FRONTEND_URL!}/auth/email-verify/${newVerif._id}`
+    `${process.env.SSC_FRONTEND_URL!}/auth/email-verify/${newVerif._id}?email=${user.email}`
   );
   res.status(200).json({ status: successful ? 'EMAIL_SENT' : 'NOT_SENT' });
 });
 
-export const verifyEmail: RequestHandler = catchAsync(async (req, res, next) => {
+export const verifyEmail = catchAsync(async (req, res, next) => {
   if (!isValidObjectId(req.params.vid))
     return next(
       new HttpError(404, 'This link is broken or malformed. Please check and try again.')
     );
 
   const verif = await EmailVerification.findById(req.params.vid);
-  if (!verif) return next(new HttpError(404, 'This link is invalid.'));
+  const user = await User.findByEmail(req.query.email as string);
 
-  const user = await User.findByEmail(verif.email);
+  if (!user || (verif && verif.email !== req.query.email))
+    return next(
+      new HttpError(400, 'This link is broken or malformed. Please check and try again.')
+    );
+
+  if (!verif)
+    return user?.isEmailVerified
+      ? res.status(200).json({ status: 'EMAIL_PREVIOUSLY_VERIFIED' })
+      : next(new HttpError(404, 'This link is invalid.'));
 
   // Invalidate link by deleting it
   const deleteVerification = async () => {
@@ -96,7 +115,7 @@ export const verifyEmail: RequestHandler = catchAsync(async (req, res, next) => 
     const newVerif = await EmailVerification.create({ email: verif.email });
     const { successful } = await emailService.sendVerificationEmail(
       user,
-      `${process.env.SSC_FRONTEND_URL!}/auth/email-verify/${newVerif._id}`
+      `${process.env.SSC_FRONTEND_URL!}/auth/email-verify/${newVerif._id}?email=${user.email}`
     );
     return next(
       new HttpError(
@@ -121,29 +140,45 @@ export const googleVerify = catchAsync(async (req, res, next) => {
   const token = req.query.token;
   const url = 'https://www.googleapis.com/oauth2/v3/userinfo';
 
-  const { data: result } = await axios.get(url, {
+  const { data } = await axios.get(url, {
     headers: { Authorization: `Bearer ${token}`, 'content-type': 'application/json' }
   });
 
-  console.log('Result from Google: ', result);
-  if (result.error) return res.json({ success: false, msg: 'Invalid token' });
+  console.log('Result from Google: ', data);
+  if (data.error) return res.json({ success: false, msg: 'Invalid token' });
 
   // @ts-ignore
-  req.user = result;
+  req.googleUser = data;
   next();
-
-  // return {
-  //   success: true,
-  //   user: {
-  //     firstName: result.given_name,
-  //     lastName: result.family_name,
-  //     email: result.email,
-  //     imgUrl: result.picture
-  //   }
-  // };
 });
 
 export const googleSignIn = catchAsync(async (req, res, next) => {
   // @ts-ignore
-  console.log({ 'req.user': req.user });
+  const existingUser = await User.findByEmail(req.googleUser.email);
+
+  if (existingUser) {
+    return res.status(200).json({
+      status: 'LOGIN_SUCCESS',
+      user: await User.findOne({ email: existingUser.email }).select('-password'),
+      accessToken: signToken(existingUser._id)
+    });
+  }
+
+  // @ts-ignore
+  const newUser = await User.create({
+    // @ts-ignore
+    firstName: req.googleUser.given_name,
+    // @ts-ignore
+    lastName: req.googleUser.family_name,
+    // @ts-ignore
+    email: req.googleUser.email,
+    // @ts-ignore
+    isEmailVerified: req.googleUser.email_verified
+  });
+
+  res.status(201).json({
+    status: 'USER_CREATED',
+    user: await User.findById(newUser.id),
+    accessToken: signToken(newUser._id)
+  });
 });

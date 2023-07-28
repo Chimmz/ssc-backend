@@ -16,7 +16,7 @@ export interface UserMethods {
 
 export interface UserModel extends Model<UserDocument, {}, UserMethods> {
   someUserExistsWithEmail(email: string): Promise<boolean>;
-  findByEmail(email: string): Promise<HydratedDocument<UserDocument, UserMethods>>;
+  findByEmail(email: string): Promise<HydratedDocument<UserDocument, UserMethods> | null>;
   encryptPassword(pwd: string): Promise<string>;
   sendVerificationEmail(): Promise<void>;
 }
@@ -80,9 +80,10 @@ export type StartupStage =
 export interface StartupDocument extends Document {
   createdAt: Date;
   name: string;
-  imgUrl: string;
+  logo: string;
   industry: StartupIndustry;
   stage: StartupStage;
+  description: string;
 }
 export interface StartupMethods {}
 // Statics

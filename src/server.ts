@@ -4,6 +4,7 @@ dotenv.config();
 import { createServer } from 'http';
 import mongoConnect from './db/mongoose';
 import app from './app';
+import Startup from './models/Startup';
 
 const server = createServer(app);
 

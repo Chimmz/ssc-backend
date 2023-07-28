@@ -22,17 +22,6 @@ export const getNews: RequestHandler = async (req, res, next) => {
   ]);
 
   res.status(200).json({ status: 'SUCCESS', results: news.length, total: newsTotal, news });
-  // const result = await News.aggregate([
-  //   { $match: { $text: { $search: req.query.q as string, $caseSensitive: false } } },
-  //   {
-  //     $project: {
-  //       newsHeadline: { $split: ['$headline', req.query.q] },
-  //       newsStory: { $split: ['$story', req.query.q] },
-  //       _id: 1
-  //     }
-  //   }
-  // ]);
-  // res.json(result);
 };
 
 export const getNewsById: RequestHandler = async (req, res, next) => {

@@ -30,7 +30,7 @@ const userSchema = new Schema<UserDocument, UserModel, UserMethods>(
     password: {
       type: String,
       trim: true,
-      required: [true, 'Please enter your first name'],
+      // required: [true, 'Please enter your first name'],
       select: false
     },
     isEmailVerified: { type: Boolean, default: false }
