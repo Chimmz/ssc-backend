@@ -87,17 +87,13 @@ export const resendVerificationEmail = catchAsync(async (req, res, next) => {
 
 export const verifyEmail = catchAsync(async (req, res, next) => {
   if (!isValidObjectId(req.params.vid))
-    return next(
-      new HttpError(404, 'This link is broken or malformed. Please check and try again.')
-    );
+    return next(new HttpError(404, 'This link is broken. Please check and try again.'));
 
   const verif = await EmailVerification.findById(req.params.vid);
-  const user = await User.findByEmail(req.query.email as string);
+  const user = await User.findByEmail(req.query.email! as string);
 
   if (!user || (verif && verif.email !== req.query.email))
-    return next(
-      new HttpError(400, 'This link is broken or malformed. Please check and try again.')
-    );
+    return next(new HttpError(400, 'This link is broken. Please check and try again.'));
 
   if (!verif)
     return user?.isEmailVerified

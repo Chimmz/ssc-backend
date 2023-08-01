@@ -1,7 +1,7 @@
 import { Model, Document, HydratedDocument, Schema } from 'mongoose';
 import { StartupIndustries, StartupStages } from '../utils/constants';
 
-////////// USER SCHEMA ///////////////////////////////////////////
+////////////////////// USER SCHEMA ///////////////////////////////
 export interface UserDocument extends Document {
   firstName: string;
   lastName: string;
@@ -62,27 +62,27 @@ export interface NewsMethods {}
 export interface NewsModel extends Model<NewsDocument, {}, NewsMethods> {}
 
 /////////////////// STARTUP MODEL /////////////////////////////////
-export type StartupIndustry =
-  | StartupIndustries.HEALTHCARE
-  | StartupIndustries.BLOCK_CHAIN
-  | StartupIndustries.E_COMMERCE
-  | StartupIndustries.FINANCIAL
-  | StartupIndustries.GAMING;
+// export type StartupIndustry =
+//   | StartupIndustries.HEALTHCARE
+//   | StartupIndustries.BLOCK_CHAIN
+//   | StartupIndustries.E_COMMERCE
+//   | StartupIndustries.FINANCIAL
+//   | StartupIndustries.GAMING;
 
-export type StartupStage =
-  | StartupStages.SEED_STAGE
-  | StartupStages.GROWTH_STAGE
-  | StartupStages.IDEA_AND_CONCEPTUALIZATION
-  | StartupStages.EARLY_TRACTION
-  | StartupStages.PROOF_OF_CONCEPT
-  | StartupStages.EXPANSION_AND_MATURITY;
+// export type StartupStage =
+//   | StartupStages.SEED_STAGE
+//   | StartupStages.GROWTH_STAGE
+//   | StartupStages.IDEA_AND_CONCEPTUALIZATION
+//   | StartupStages.EARLY_TRACTION
+//   | StartupStages.PROOF_OF_CONCEPT
+//   | StartupStages.EXPANSION_AND_MATURITY;
 
 export interface StartupDocument extends Document {
   createdAt: Date;
   name: string;
-  logo: string;
-  industry: StartupIndustry;
-  stage: StartupStage;
+  logoUrl: string;
+  industries: StartupIndustries[];
+  stage: StartupStages;
   description: string;
 }
 export interface StartupMethods {}
