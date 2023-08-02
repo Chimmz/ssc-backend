@@ -6,9 +6,11 @@ const startupSchema = new Schema<StartupDocument, StartupModel, StartupMethods>(
   {
     name: { type: String, index: 'text', unique: true, required: true },
     logoUrl: { type: String, required: true },
-    industries: { type: [String], enum: StartupIndustries, required: true },
+    industries: { type: [String], required: true },
     stage: { type: String, enum: StartupStages, required: true },
-    description: { type: String, maxlength: 500, index: 'text', required: true }
+    description: { type: String, maxlength: 1000, trim: true, index: 'text', required: true },
+    email: { type: String, lowercase: true, trim: true, required: false },
+    websiteUrl: { type: String, trim: true, required: false }
   },
   { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );

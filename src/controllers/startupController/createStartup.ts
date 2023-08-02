@@ -9,7 +9,7 @@ import Startup from '../../models/Startup';
 const createStartup = catchAsync(async (req, res, next) => {
   const startup = await Startup.create({
     ...req.body,
-    industries: req.body.industries.split(',')
+    industries: req.body.industries?.split(',').map((ind: string) => ind.trim())
   });
   res.status(200).json({ status: 'STARTUP_CREATED', startup });
 });
@@ -21,34 +21,6 @@ const getResizedLogoDimensions = ({ width = 120, height = 80 }: Metadata) => {
 };
 
 export const handleLogoUpload = catchAsync(async (req, res, next) => {
-  if (!req.file) return next(new HttpError(400, 'No logo uploaded'));
-  if (!req.file.mimetype.startsWith('image/'))
-    return next(
-      new HttpError(400, `Startup logo should be an image. Received '${req.file.mimetype}'`)
-    );
-
-  const filePath = `public/img/startups/logos/${Date.now()}.png`;
-  const imgMetadata = await sharp(req.file.buffer).metadata();
-
-  await sharp(req.file.buffer)
-    .resize(...getResizedLogoDimensions(imgMetadata))
-    .toFormat('png')
-    .png({ quality: 90 })
-    .toFile(filePath);
-
-  const { secure_url } = await cloudinaryService.upload('startup-logos', filePath);
-
-  req.body.logoUrl = secure_url;
-
-  // Delete file from server
-  fs.unlink(filePath, err => {
-    if (err) return console.log('Could not delete logo from server');
-    console.log('Logo deleted from server');
-  });
-
-  if (!secure_url?.length)
-    return next(new HttpError(500, 'We could not complete your upload. Please try again.'));
-
   next();
 });
 

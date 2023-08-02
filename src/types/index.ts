@@ -78,12 +78,14 @@ export interface NewsModel extends Model<NewsDocument, {}, NewsMethods> {}
 //   | StartupStages.EXPANSION_AND_MATURITY;
 
 export interface StartupDocument extends Document {
-  createdAt: Date;
   name: string;
   logoUrl: string;
   industries: StartupIndustries[];
   stage: StartupStages;
   description: string;
+  email?: string;
+  websiteUrl?: string;
+  createdAt: Date;
 }
 export interface StartupMethods {}
 // Statics
