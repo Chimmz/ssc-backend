@@ -4,6 +4,6 @@ import * as newsController from '../controllers/newsController';
 const router = Router();
 
 router.route('/').post(newsController.postNews).get(newsController.getNews);
-router.route('/:newsId').get(newsController.getNewsById);
+router.get('/:newsId', newsController.getNewsById);
 
 export default router;

@@ -28,6 +28,7 @@ export const getNewsById: RequestHandler = async (req, res, next) => {
   const newsItem = await News.findOne({
     _id: new mongoose.Types.ObjectId(req.params.newsId)
   });
+  // const newsItem = await News.findById(req.params.newsId);
   if (!newsItem) return next(new HttpError(404, 'News update not found'));
 
   res.status(200).json({ status: 'SUCCESS', newsItem });

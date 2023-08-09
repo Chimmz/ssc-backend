@@ -5,6 +5,7 @@ import multer, { FileFilterCallback } from 'multer';
 import createStartup, {
   handleLogoUpload
 } from '../controllers/startupController/createStartup';
+import getStartupFilters from '../controllers/startupController/getStartupFilters';
 
 const router = express.Router();
 
@@ -15,7 +16,8 @@ router
   .post(upload.single('photo'), handleLogoUpload, createStartup)
   .get(getStartups);
 
-router.route('/random').get(getRandomStartups);
-router.route('/search').get(searchStartup);
+router.get('/random', getRandomStartups);
+router.get('/search', searchStartup);
+router.get('/filters', getStartupFilters);
 
 export default router;

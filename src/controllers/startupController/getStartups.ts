@@ -10,7 +10,7 @@ const getStartups: RequestHandler = catchAsync(async (req, res, next) => {
 });
 
 export const getRandomStartups: RequestHandler = catchAsync(async (req, res, next) => {
-  const limit = req.query.limit || 1;
+  const limit = req.query.limit || 4;
 
   const startups = await Startup.aggregate([{ $sample: { size: +limit } }]);
   res.status(200).json({ status: 'SUCCESS', startups });

@@ -1,11 +1,13 @@
 
 /dist
 
+# src/controllers/startupController/createStartup
+
 # dependencies
 node_modules/
 .vscode
 # misc
-.env
+# .env
 
 npm-debug.log*
 yarn-debug.log*
