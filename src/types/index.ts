@@ -80,7 +80,7 @@ export interface NewsModel extends Model<NewsDocument, {}, NewsMethods> {}
 export interface StartupDocument extends Document {
   name: string;
   logoUrl: string;
-  industries: StartupIndustries[];
+  industries: string[];
   stage: StartupStages;
   description: string;
   email?: string;

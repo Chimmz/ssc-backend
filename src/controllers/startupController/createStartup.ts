@@ -32,6 +32,7 @@ export const handleLogoUpload = catchAsync(async (req, res, next) => {
 
   await sharp(req.file.buffer)
     .resize(...getResizedLogoDimensions(imgMetadata))
+    // .resize(imgMetadata.width, imgMetadata.height)
     .toFormat('png')
     .png({ quality: 90 })
     .toFile(filePath);
