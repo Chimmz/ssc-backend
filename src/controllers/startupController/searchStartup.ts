@@ -3,7 +3,7 @@ import catchAsync from '../../utils/asyncUtils';
 import Startup from '../../models/Startup';
 
 const searchStartups: RequestHandler = async (req, res, next) => {
-  const searchQuery = req.query.q as string;
+  const textQuery = (req.query.q as string | undefined)?.trim() as string;
   const industryFilters = (req.query.industry as string | undefined)
     ?.split(',')
     .filter(f => !!f)
@@ -19,25 +19,30 @@ const searchStartups: RequestHandler = async (req, res, next) => {
   const industryQuery = industryFilters?.map(f => ({
     industries: { $regex: f, $options: 'i' }
   }));
+
   const queryOR: any[] = [];
   if (industryFilters?.length) queryOR.push(...industryQuery!);
   if (stageFilters?.length) queryOR.push(...stageQuery!);
 
   // AND
-  const nameQuery = { name: { $regex: `^${searchQuery}`, $options: 'i' } };
-  const descriptionQuery = { description: { $regex: searchQuery, $options: 'i' } };
+  const nameQuery = { name: { $regex: `${textQuery}`, $options: 'i' } };
+  const descriptionQuery = { description: { $regex: textQuery, $options: 'i' } };
+  const textSearch = { $text: { $search: textQuery, $caseSensitive: false } };
   const queryAND: any[] = [];
 
-  if (searchQuery) {
-    // If user doesn't use the sidebar filter, make text search an OR query to search all docs
-    // Else an AND query to search within the filtered results
-    (!queryOR.length ? queryOR : queryAND).push(nameQuery, descriptionQuery);
+  const filtersUsed = industryQuery?.length || stageQuery?.length;
+
+  if (!filtersUsed && textQuery) queryOR.push(nameQuery, descriptionQuery);
+  else if (filtersUsed && textQuery) {
+    // Increase search accuracy for startup name, since text-search isn't accurate for startup names
+    if (await Startup.findOne(nameQuery)) queryAND.push(nameQuery);
+    else queryAND.push(textSearch);
   }
 
   // AND + OR filters
   const filters: { [k: string]: object } = {};
-  if (queryOR.length) filters['$or'] = queryOR;
-  if (queryAND.length) filters['$and'] = queryAND;
+  if (queryOR.length) filters.$or = queryOR;
+  if (queryAND.length) filters.$and = queryAND;
 
   console.log(filters);
 

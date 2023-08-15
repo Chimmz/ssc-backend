@@ -15,8 +15,8 @@ const handler: RequestHandler = async (req, res, next) => {
     { $project: { _id: 0 } }
   ]);
 
-  industries = Array.from(new Set(industries.flat()));
-  stages = Array.from(new Set(stages));
+  industries = Array.from(new Set(industries.flat())).sort();
+  stages = Array.from(new Set(stages)).sort();
 
   res.status(200).json({ status: 'SUCCESS', industries, stages });
 };
